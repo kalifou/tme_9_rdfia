@@ -32,6 +32,7 @@ img = img.transpose((2, 0, 1))
 img = np.expand_dims(img, 0)
 # transformer en batch contenant une image
 x = Variable(t.Tensor(img))
+print(" x dim ",img.shape)
 y = F.softmax(vgg16(x))
 
 # TODO calcul forward
