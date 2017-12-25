@@ -1,9 +1,11 @@
 import argparse
 import os
 import time
+import torch.optim as optim
+from torch.optim import lr_scheduler
 
 from PIL import Image
-
+import torch.nn.functional as F
 import numpy as np
 from matplotlib import pyplot as plt
 import torch, torchvision
@@ -106,12 +108,10 @@ def main_experiment_svm(params):
     # On récupère les données
     print('Récupération des données')
     train, test = get_dataset(params.batch_size, params.path)
-    #print('size of train dataset :', train.shape)
     # Extraction des features
     print('Feature extraction')
     
     X_train, y_train = extract_features(train, model)
-    #print("Shapes :",X_train.shape,y_train.shape)
     X_test, y_test = extract_features(test, model)
     # TODO Apprentissage et évaluation des SVM à faire
 
@@ -156,7 +156,8 @@ def main_learn_last_vgg16(params):
                 x = self.features(x)
                 x = x.view(x.size(0), -1)
                 x = self.classifier(x)
-                return np.argmax(F.softmax(x).data.numpy())
+                return x
+                #return np.argmax(F.softmax(x).cpu().data.numpy())
             
     print('Instanciation de VGG16relu7')
     model = VGG16lastNew()
@@ -165,7 +166,114 @@ def main_learn_last_vgg16(params):
     if CUDA: # si on fait du GPU, passage en CUDA
         model = model.cuda()
 
+    # On récupère les données
+    print('Récupération des données')
+    train, test = get_dataset(params.batch_size, params.path)
+    
+    data = {"train":train, "test":test}
+    dataset_sizes = {"train":len(train)*params.batch_size,"test":len(test)*params.batch_size}
+    criterion = nn.CrossEntropyLoss()
 
+    # Observe that all parameters are being optimized
+    optimizer_ft = optim.SGD(filter(lambda p: p.requires_grad, model.parameters()), lr=0.001, momentum=0.9)
+    
+    # Decay LR by a factor of 0.1 every 7 epochs
+    exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=7, gamma=0.1)
+    
+    train_model(model, data, dataset_sizes, criterion, optimizer_ft, exp_lr_scheduler, num_epochs=40)
+    
+def train_model(model, d,dataset_sizes, criterion, optimizer, scheduler, num_epochs=25):
+    since = time.time()
+
+    best_model_wts = model.state_dict()
+    best_acc = 0.0
+
+    accus_=[]
+    losss_=[]
+    
+    for epoch in range(num_epochs):
+        print('Epoch {}/{}'.format(epoch, num_epochs - 1))
+        print('-' * 10)
+
+        # Each epoch has a training and validation phase
+        for phase in ['train', 'test']:
+            if phase == 'train':
+                scheduler.step()
+                model.train(True)  # Set model to training mode
+            else:
+                model.train(False)  # Set model to evaluate mode
+
+            running_loss = 0.0
+            running_corrects = 0
+
+            # Iterate over data.
+            for data in d[phase]:
+                # get the inputs
+                inputs, labels = data
+
+                # wrap them in Variable
+                if CUDA:
+                    inputs = Variable(inputs.cuda())
+                    labels = Variable(labels.cuda())
+                else:
+                    inputs, labels = Variable(inputs), Variable(labels)
+
+                # zero the parameter gradients
+                optimizer.zero_grad()
+
+                # forward
+                outputs = model(inputs)
+                #print(type(outputs.data))
+                _, preds = torch.max(outputs.data, 1)
+                loss = criterion(outputs, labels)
+
+                # backward + optimize only if in training phase
+                if phase == 'train':
+                    loss.backward()
+                    optimizer.step()
+
+                # statistics
+                running_loss += loss.data[0]
+                running_corrects += torch.sum(preds == labels.data)
+
+            epoch_loss = running_loss / dataset_sizes[phase]
+            epoch_acc = running_corrects / dataset_sizes[phase]
+
+            accus_.append(epoch_acc)
+            losss_.append(epoch_loss)
+            
+            print('{} Loss: {:.4f} Acc: {:.4f}'.format(
+                phase, epoch_loss, epoch_acc))
+
+            # deep copy the model
+            if phase == 'val' and epoch_acc > best_acc:
+                best_acc = epoch_acc
+                best_model_wts = model.state_dict()
+
+        print()
+
+    time_elapsed = time.time() - since
+    print('Training complete in {:.0f}m {:.0f}s'.format(
+        time_elapsed // 60, time_elapsed % 60))
+    print('Best val Acc: {:4f}'.format(best_acc))
+
+
+    """Plotting the evolution accuracy """
+    fig = plt.figure(figsize=(11,7))
+
+    fig.suptitle(" Accuracy & Loss",fontsize=15)
+    plt.xlabel("Epoch ", fontsize=12)
+    plt.ylabel("Accuracy ", fontsize=12)
+    interval = range(len(losss_))
+    plt.plot(interval, accus_,color = "blue", label = "Accuracy")    
+    plt.plot(interval, losss_,color = "red", label = "Loss")    
+    plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)        
+    plt.savefig('Accuracy_&_Loss.png')
+    #plt.show()
+    ## load best model weights
+    #model.load_state_dict(best_model_wts)
+    return None,None
+    
 
 if __name__ == '__main__':
 
@@ -180,21 +288,23 @@ if __name__ == '__main__':
         CUDA = True
         cudnn.benchmark = True
 
-        c_vals, acc= main_learn_last_vgg16(args) #main_experiment_svm(args)
+    c_vals, acc= main_learn_last_vgg16(args) #main_experiment_svm(args)
 
-    """Plotting the evolution accuracy """
-    fig = plt.figure(figsize=(11,7))
-    id_max = np.argmax(acc)
-    max_val =str(c_vals[id_max])
-    print(" Accuracy depending on C value, best(C, Acc) = ("+max_val+', '+str(acc[id_max])+ ') ')
+    if(not CUDA):
+    
+        """Plotting the evolution accuracy """
+        fig = plt.figure(figsize=(11,7))
+        id_max = np.argmax(acc)
+        max_val =str(c_vals[id_max])
+        print(" Accuracy depending on C value, best(C, Acc) = ("+max_val+', '+str(acc[id_max])+ ') ')
 
-    fig.suptitle(" Accuracy depending on C value",fontsize=15)
-    plt.xlabel("Log Value of C  ", fontsize=12)
-    plt.ylabel("Accuracy of LinSVM", fontsize=12)
-    interval = [np.log10(it) for it in c_vals]
-    plt.plot(interval, acc,color = "blue") #, label = "map test random")    
-    #plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
-    plt.savefig('Accuracy_C_Value.png')
-    plt.show()
+        fig.suptitle(" Accuracy depending on C value",fontsize=15)
+        plt.xlabel("Log Value of C  ", fontsize=12)
+        plt.ylabel("Accuracy of LinSVM", fontsize=12)
+        interval = [np.log10(it) for it in c_vals]
+        plt.plot(interval, acc,color = "blue") #, label = "map test random")    
+        #plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+        plt.savefig('Accuracy_C_Value.png')
+        plt.show()
 
-    #Accuracy depending on C value, best(C, Acc) = (0.52, 0.891085790885)
+        #Accuracy depending on C value, best(C, Acc) = (0.52, 0.891085790885)
