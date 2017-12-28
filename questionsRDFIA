@@ -1,0 +1,16 @@
+q1: One can easily estimate VGG16's parameters number by considering its fully-connected layers: (7*7*512)*4096 + 4096*1000 gives approximately 107 millions parameters.
+
+q2: the last layer is used to predict on Imagenet, it must have the same size as ImageNet's number of classes, which is 1000.
+
+q5: Training VGG16 from scratch would be too expensive in terms of computation time, and even if we had the ressources, the dataset 15-Scene would be too small to train such a big network.
+
+q6: pre-training on Image-net provides a powerful feature extractor that will be valid for our dataset if we make the assomption that imageNet's images' distribution encompasses 15-scene images' distribution.
+
+q7: This approach might not work very well if we use a dataset of images completely different from the original ones used to train vgg16 (ImageNet).
+
+q11:Instead of learning a new classifier connected to Relu7 (with fixed weights),
+it is possible to use the whole vgg16 pretrained and fine-tune it,
+i.e train it on the 15 Scenes dataset.
+
+
+q12: Accuracy depending on C value, best(C, Acc) = (0.52, 0.891085790885) + show plot

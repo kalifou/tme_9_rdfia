@@ -180,7 +180,7 @@ def main_learn_last_vgg16(params):
     # Decay LR by a factor of 0.1 every 7 epochs
     exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=7, gamma=0.1)
     
-    train_model(model, data, dataset_sizes, criterion, optimizer_ft, exp_lr_scheduler, num_epochs=40)
+    train_model(model, data, dataset_sizes, criterion, optimizer_ft, exp_lr_scheduler, num_epochs=20)
     
 def train_model(model, d,dataset_sizes, criterion, optimizer, scheduler, num_epochs=25):
     since = time.time()
@@ -253,8 +253,7 @@ def train_model(model, d,dataset_sizes, criterion, optimizer, scheduler, num_epo
         print()
 
     time_elapsed = time.time() - since
-    print('Training complete in {:.0f}m {:.0f}s'.format(
-        time_elapsed // 60, time_elapsed % 60))
+    print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
     print('Best val Acc: {:4f}'.format(best_acc))
 
 
@@ -266,13 +265,13 @@ def train_model(model, d,dataset_sizes, criterion, optimizer, scheduler, num_epo
     plt.ylabel("Accuracy ", fontsize=12)
     interval = range(len(losss_))
     plt.plot(interval, accus_,color = "blue", label = "Accuracy")    
-    plt.plot(interval, losss_,color = "red", label = "Loss")    
+    #plt.plot(interval, losss_,color = "red", label = "Loss")    
     plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)        
     plt.savefig('Accuracy_&_Loss.png')
     #plt.show()
     ## load best model weights
     #model.load_state_dict(best_model_wts)
-    return None,None
+    return [],[]
     
 
 if __name__ == '__main__':
@@ -288,7 +287,7 @@ if __name__ == '__main__':
         CUDA = True
         cudnn.benchmark = True
 
-    c_vals, acc= main_learn_last_vgg16(args) #main_experiment_svm(args)
+    c_vals, acc = main_learn_last_vgg16(args) #main_experiment_svm(args)
 
     if(not CUDA):
     

@@ -1,0 +1,102 @@
+Instanciation de VGG16
+Instanciation de VGG16relu7
+Récupération des données
+Epoch 0/19
+----------
+train Loss: 0.7341 Acc: 0.4545
+test Loss: 1.0344 Acc: 0.3274
+
+Epoch 1/19
+----------
+train Loss: 0.5928 Acc: 0.4632
+test Loss: 0.6932 Acc: 0.5087
+
+Epoch 2/19
+----------
+train Loss: 0.5540 Acc: 0.5668
+test Loss: 0.5758 Acc: 0.5845
+
+Epoch 3/19
+----------
+train Loss: 0.5493 Acc: 0.6049
+test Loss: 0.4979 Acc: 0.6129
+
+Epoch 4/19
+----------
+train Loss: 0.4460 Acc: 0.6604
+test Loss: 0.3913 Acc: 0.6528
+
+Epoch 5/19
+----------
+train Loss: 0.3217 Acc: 0.7193
+test Loss: 0.3569 Acc: 0.6702
+
+Epoch 6/19
+----------
+train Loss: 0.2740 Acc: 0.7507
+test Loss: 0.3090 Acc: 0.7044
+
+Epoch 7/19
+----------
+train Loss: 0.2618 Acc: 0.7513
+test Loss: 0.1441 Acc: 0.8391
+
+Epoch 8/19
+----------
+train Loss: 0.1339 Acc: 0.8416
+test Loss: 0.1137 Acc: 0.8576
+
+Epoch 9/19
+----------
+train Loss: 0.0985 Acc: 0.8763
+test Loss: 0.1047 Acc: 0.8663
+
+Epoch 10/19
+----------
+train Loss: 0.0838 Acc: 0.8790
+test Loss: 0.1001 Acc: 0.8670
+
+Epoch 11/19
+----------
+train Loss: 0.0719 Acc: 0.8971
+test Loss: 0.0969 Acc: 0.8700
+
+Epoch 12/19
+----------
+train Loss: 0.0758 Acc: 0.8870
+test Loss: 0.0947 Acc: 0.8720
+
+Epoch 13/19
+----------
+train Loss: 0.0640 Acc: 0.9044
+test Loss: 0.0936 Acc: 0.8716
+
+Epoch 14/19
+----------
+train Loss: 0.0608 Acc: 0.9078
+test Loss: 0.0935 Acc: 0.8713
+
+Epoch 15/19
+----------
+train Loss: 0.0616 Acc: 0.9098
+test Loss: 0.0934 Acc: 0.8727
+
+Epoch 16/19
+----------
+train Loss: 0.0691 Acc: 0.8951
+test Loss: 0.0933 Acc: 0.8727
+
+Epoch 17/19
+----------
+train Loss: 0.0576 Acc: 0.9071
+test Loss: 0.0932 Acc: 0.8723
+
+Epoch 18/19
+----------
+train Loss: 0.0678 Acc: 0.8984
+test Loss: 0.0931 Acc: 0.8727
+
+Epoch 19/19
+----------
+train Loss: 0.0604 Acc: 0.9118
+QXcbConnection: Could not connect to display localhost:11.0
